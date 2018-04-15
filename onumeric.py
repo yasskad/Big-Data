@@ -2,7 +2,7 @@ import os
 import numpy as np
 from math import sqrt
 from operator import add
-from pyspark.mllib.clustering import GaussianMixture, GaussianMixtureModel
+from pyspark.mllib.clustering import GaussianMixture, GaussianMixtureModel, KMeans, KMeansModel
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.linalg import DenseMatrix
 
