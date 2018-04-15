@@ -1,9 +1,12 @@
 import os
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 def find_outliers(column):
     """
     Input: sequence of text data
-    Output: outlier indices
+    Output: outlier values
     """
     column = np.array(column)
     max_len = 0
@@ -16,7 +19,7 @@ def find_outliers(column):
     else:
         outliers = long_text_outliers(column)
     
-    return list(np.array(sequence)[outliers])
+    return list(column[outliers])
     
     
 def edit_distance(str1, str2):
@@ -62,7 +65,6 @@ def short_text_outliers(column):
                     categories = np.unique(column)
             else:
                 all_true = False
-    
     # Then, we return outliers (low population)
     outliers = []
     for current in categories:
@@ -88,5 +90,8 @@ def long_text_outliers(column):
     mean, std = np.mean(avg_k_dist), np.std(avg_k_dist)
     outliers = np.where(avg_k_dist > mean + 3*std)[0]
     return outliers
+
+
+
 if __name__=='__main__':
     print("")
