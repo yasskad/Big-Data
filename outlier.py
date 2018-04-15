@@ -39,7 +39,7 @@ def findoutliers(database):
 		smpl_type = utils.gettype(rand_smpl)
 		if smpl_type == 'Numeric':
 			valuelist = list(filter((lambda x: utils.isfloat(x)), valuelist))
-			valuelist = onumeric.find_outliers(valuelist)
+			valuelist = onumeric.find_outliers(sc, valuelist)
 		elif smpl_type == 'String':
 			valuelist = ostring.find_outliers(valuelist)
 		elif smpl_type == 'None':
