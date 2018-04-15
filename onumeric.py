@@ -65,6 +65,12 @@ def find_outliers_KGuaussians(sc, sequence,k=2,proportion=0.95):
                         return []
         else:
                 return []
+
+def find_outliers(sc, sequence,k=2,proportion=0.95):
+        l1=find_outliers_KMeans(sc,sequence,k,proportion)
+        l2=find_outliers_KGuaussians(sc,sequence,k,proportion)
+        return l1+l2
+
         
 if __name__=='__main__':
 	print("")	
