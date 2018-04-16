@@ -31,7 +31,7 @@ def find_outliers_KMeans(sequence,k=2,proportion=0.95):
         else:
                 return []
 
-def find_outliers_KGuaussians(sequence,k=2,proportion=0.95):
+def find_outliers_KGuaussians(sequence,k=2,proportion=0.95,distance_factor=3):
         #currently please take input as a list and return a list
         #for now, k=2
         df=sequence
@@ -57,7 +57,7 @@ def find_outliers_KGuaussians(sequence,k=2,proportion=0.95):
         s=np.array(m)
 
         l=df_vector.collect()
-        if abs(m[0]-m[1])>2*(sqrt(s[0])+sqrt(s[1])):
+        if abs(m[0]-m[1])>distance_factor*(sqrt(s[0])+sqrt(s[1])):
                 if c0/n>proportion:
                         return list(l[labels==1])
                 elif c1/n>proportion:
@@ -85,7 +85,7 @@ def find_outliers(sequence, k=2,proportion=0.95,distance_factor=3):
         #l1=find_outliers_KMeans(sequence,k,proportion)
         l2=find_outliers_KGuaussians(sequence,k,proportion)
         l3=find_outliers_Gaussian(sequence,distance_factor)
-        return l2
+        return l2+l3
 
 
         
