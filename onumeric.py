@@ -60,6 +60,7 @@ def find_outliers_KGuaussians(sequence,k=2,proportion=0.95,distance_factor=3):
         s=np.array(m)
 
         l=df_vector.collect()
+        l=np.array(l)
         if abs(m[0]-m[1])>distance_factor*(sqrt(s[0])+sqrt(s[1])):
                 if c0/n>proportion:
                         return list(l[labels==1])
