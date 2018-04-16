@@ -79,7 +79,7 @@ def find_outliers_Gaussian(sequence,distance_factor=3):
 
         l=np.array(df_vector.collect())
         d=abs(l-mu)
-        return d[d>=distance_factor*s]
+        return list(d[d>=distance_factor*s])
 
 def find_outliers(sequence, k=2,proportion=0.95,distance_factor=3):
         #l1=find_outliers_KMeans(sequence,k,proportion)
