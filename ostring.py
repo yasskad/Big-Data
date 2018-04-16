@@ -1,6 +1,7 @@
 import os
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn.feature_extraction.text import TfidfVectorizer
+from pyspark.mllib.feature import HashingTF, IDF
 
 
 def find_outliers(column):
@@ -8,13 +9,13 @@ def find_outliers(column):
     Input: sequence of text data
     Output: outlier values
     """
-    column = np.array(column)
+    column_2 = np.array(column.collect())
     max_len = 0
-    for i in range(column.shape[0]):
-        max_len = max(max_len, len(column[i].split()))
+    for i in range(column_2.shape[0]):
+        max_len = max(max_len, len(column_2[i].split()))
     #SHORT: categories + solving conflicts with edit
     if max_len <= 3:
-        outliers = short_text_outliers(column)
+        outliers = short_text_outliers(column_2)
     #LONG: tf-idf (fit gaussian on k-nearest or say we need to find some nb of outliers)
     else:
         outliers = long_text_outliers(column)
@@ -76,15 +77,25 @@ def short_text_outliers(column):
 
 def long_text_outliers(column):
     k = 10
-    vectorizer = TfidfVectorizer(max_features=250, use_idf=True)
-    data_mat = vectorizer.fit_transform(column).toarray()
-    print(data_mat.shape)
+    #vectorizer = TfidfVectorizer(max_features=250, use_idf=True)
+    #data_mat = vectorizer.fit_transform(column).toarray()
+    seq = column.map(lambda line: line.split(" "))
+
+    hashingTF = HashingTF()
+    tf = hashingTF.transform(seq)
+    tf.cache()
+    idf = IDF(minDocFreq=2).fit(tf)
+    tfidf = idf.transform(tf)
+    
+    data_mat = []
+    for i in range(len(tfidf.collect())):
+        data_mat = np.hstack((data_mat, tfidf.collect()[i].values))
+        
 
     avg_k_dist = []
-    for i in range(data_mat.shape[0]):
+    for i in range(len(data_mat)):
         dist = np.linalg.norm(data_mat - data_mat[i], 2, axis=1)
-        #print(dist.shape)
-        avg_k_dist.append(1/k*np.sum(np.sort(dist)[:k]))
+        avg_k_dist.append(1/k*np.sum(np.sort(dist)[1:(k+1)]))
     
     avg_k_dist = np.array(avg_k_dist)
     mean, std = np.mean(avg_k_dist), np.std(avg_k_dist)
