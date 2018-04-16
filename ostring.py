@@ -20,7 +20,7 @@ def find_outliers(column):
     else:
         outliers = long_text_outliers(column)
     
-    return list(column[outliers])
+    return outliers
     
     
 def edit_distance(str1, str2):
