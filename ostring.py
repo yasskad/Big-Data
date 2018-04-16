@@ -70,7 +70,7 @@ def short_text_outliers(column):
     outliers = []
     for current in categories:
         if len(np.where(column == current)[0]) <= percent_size:
-            outliers = outliers + list(np.where(column == current)[0])  
+            outliers = outliers + [current] 
     return outliers
 
 
@@ -100,7 +100,7 @@ def long_text_outliers(column):
     avg_k_dist = np.array(avg_k_dist)
     mean, std = np.mean(avg_k_dist), np.std(avg_k_dist)
     outliers = np.where(avg_k_dist > mean + 3*std)[0]
-    return outliers
+    return list(np.unique(avg_k_dist[outliers]))
 
 
 
