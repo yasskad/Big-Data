@@ -70,7 +70,7 @@ def find_outliers_KGuaussians(sequence,k=2,proportion=0.95,distance_factor=3):
                         return []
         else:
                 return []
-def find_outliers_Gaussian(sequence,distance_factor=3):
+def find_outliers_Gaussian(sequence,distance_factor=6):
         df=sequence
         df_vector=df.map(lambda x: np.array(float(x)))
 
@@ -82,15 +82,14 @@ def find_outliers_Gaussian(sequence,distance_factor=3):
         s=sqrt(sigma[0].values)
 
         l=np.array(df_vector.collect())
-        d=abs(l-mu)
-        return list(d[d>=distance_factor*s])
+        d=abs(l-m)
+        return [m] + [s] + list(set(list(l[d>=distance_factor*s])))
 
-def find_outliers(sequence, k=2,proportion=0.95,distance_factor=3):
-        l1=find_outliers_KMeans(sequence,k,proportion)
-        l2=find_outliers_KGuaussians(sequence,k,proportion)
+def find_outliers(sequence, k=2,proportion=0.95,distance_factor=6):
+        #l1=find_outliers_KMeans(sequence,k,proportion)
+        #l2=find_outliers_KGuaussians(sequence,k,proportion)
         l3=find_outliers_Gaussian(sequence,distance_factor)
-        return l2+l3
-
+        return l3
 
         
 if __name__=='__main__':

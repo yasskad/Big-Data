@@ -39,9 +39,8 @@ def findoutliers(database):
 		rand_smpl = [valuelist[i] for i in sorted(random.sample(range(len(valuelist)), 10))]
 		smpl_type = utils.gettype(rand_smpl)
 		if smpl_type == 'Numeric':
-			#valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
-			#valuelistnew = onumeric.find_outliers(valuelistrdd)
-			valuelistnew = []
+			valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
+			valuelistnew = onumeric.find_outliers(valuelistrdd)
 		elif smpl_type == 'String':
 			valuelistnew = ostring.find_outliers(valuelistrdd)
 		elif smpl_type == 'None':
