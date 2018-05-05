@@ -7,6 +7,36 @@ from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.linalg import DenseMatrix
 
 
+
+
+
+def nearest_neighbors_filter(sequence, k=20):
+    sequence = sequence.map(lambda x: float(x))
+    n = len(sequence.collect())
+    
+    mean_nn_dists = []
+    for i in range(n):
+        current = sequence.collect()[i]
+        dist = sequence.map(lambda x: (x-current)**2).sortBy(lambda x: x).collect()[1:(k+1)]
+        mean_nn_dists.append(sum(dist)/k)
+        
+    mean_nn_dists = np.array(mean_nn_dists)
+    m, std = np.mean(mean_nn_dists), np.std(mean_nn_dists)
+    
+    out = np.where(mean_nn_dists > m + 5*std)[0]
+    if len(out) >= 1:
+        outliers = list(mean_nn_dists[np.where(mean_nn_dists > m + 5*std)[0]])
+    else:
+        outliers = []
+    filtered = sequence.filter(lambda x: x not in outliers)
+    
+    return outliers, filtered
+
+
+
+
+
+
 def find_outliers_KMeans(sequence,k=2,proportion=0.95):
 	#currently please take input as a list and return a list
         #for now, k=2
@@ -70,6 +100,8 @@ def find_outliers_KGuaussians(sequence,k=2,proportion=0.95,distance_factor=3):
                         return []
         else:
                 return []
+            
+            
 def find_outliers_Gaussian(sequence,distance_factor=6):
         df=sequence
         df_vector=df.map(lambda x: np.array(float(x)))
@@ -88,8 +120,10 @@ def find_outliers_Gaussian(sequence,distance_factor=6):
 def find_outliers(sequence, k=2,proportion=0.95,distance_factor=6):
         #l1=find_outliers_KMeans(sequence,k,proportion)
         #l2=find_outliers_KGuaussians(sequence,k,proportion)
-        l3=find_outliers_Gaussian(sequence,distance_factor)
-        return l3
+        #l3=find_outliers_Gaussian(sequence,distance_factor)
+        nn_outliers, filtered = nearest_neighbors_filter(sequence, k=20)
+        
+        return filtered
 
         
 if __name__=='__main__':
