@@ -8,14 +8,18 @@ from pyspark.mllib.linalg import DenseMatrix
 
 
 def nearest_neighbors_filter(sequence, k=20):
-    sequence = sequence.map(lambda x: float(x))
-    n = len(sequence.collect())
+    sequence = sequence.map(lambda x: float(x)).collect()
+    sequence = np.array(sequence)
     
     mean_nn_dists = []
-    for i in range(n):
+    for i in range(len(sequence)):
+        """
         current = sequence.collect()[i]
         dist = sequence.map(lambda x: (x-current)**2).sortBy(lambda x: x).collect()[1:(k+1)]
-        mean_nn_dists.append(sum(dist)/k)
+        """
+        current = sequence[i]
+        dist = np.sort(np.power(sequence - current, 2))[1:(k+1)]
+        mean_nn_dists.append(np.sum(dist)/k)
         
     mean_nn_dists = np.array(mean_nn_dists)
     m, std = np.mean(mean_nn_dists), np.std(mean_nn_dists)
@@ -133,8 +137,6 @@ def find_outliers_KGuaussians(sequence,k=2,proportion=0.95,distance_factor=3):
                 return list(l[labels==0])
             else:
                 return []
-            else:
-                return []
                         
 def find_outliers_Gaussian(sequence,distance_factor=6):
     df=sequence
@@ -160,10 +162,10 @@ def find_outliers(sequence, k=2,proportion=0.95,distance_factor=6):
     #l2=find_outliers_KGuaussians(sequence,k,proportion)
     #l3=find_outliers_Gaussian(sequence,distance_factor)
     nn_outliers, filtered = nearest_neighbors_filter(sequence, k=20)
-    collective_outliers = find_collective_outliers_KGaussians(sequence,k=5,proportion=0.5,ratio=10)
+    #collective_outliers = find_collective_outliers_KGaussians(filtered,k=5,proportion=0.5,ratio=10)
     
-    outliers = nn_outliers + collective_outliers
-    return outliers
+    #outliers = nn_outliers + collective_outliers
+    return nn_outliers
 
         
 if __name__=='__main__':
