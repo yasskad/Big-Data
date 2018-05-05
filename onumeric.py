@@ -8,17 +8,17 @@ from pyspark.mllib.linalg import DenseMatrix
 
 
 def nearest_neighbors_filter(sequence, k=20):
-    sequence = sequence.map(lambda x: float(x)).collect()
-    sequence = np.array(sequence)
+    column = sequence.map(lambda x: float(x)).collect()
+    column = np.array(column)
     
     mean_nn_dists = []
-    for i in range(len(sequence)):
+    for i in range(len(column)):
         """
         current = sequence.collect()[i]
         dist = sequence.map(lambda x: (x-current)**2).sortBy(lambda x: x).collect()[1:(k+1)]
         """
-        current = sequence[i]
-        dist = np.sort(np.power(sequence - current, 2))[1:(k+1)]
+        current = column[i]
+        dist = np.sort(np.power(column - current, 2))[1:(k+1)]
         mean_nn_dists.append(np.sum(dist)/k)
         
     mean_nn_dists = np.array(mean_nn_dists)
