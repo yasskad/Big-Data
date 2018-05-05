@@ -38,11 +38,10 @@ def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
     df=sequence
     df_vector=df.map(lambda x: np.array(float(x)))
     gmm=GaussianMixture.train(df_vector,k)
-    labels=gmm.predict(df_vector).collect()
+    labels=gmm.predict(df_vector)
     w=gmm.weights
     l=[]
-    labels=np.array(labels)
-    points=np.array(df_vector.collect())
+    point_label=df_vector.zip(labels)
     mus, sigmas=list(zip(*[(g.mu, g.sigma) for g in gmm.gaussians]))
     m=[]
     for i in range(k):
@@ -57,7 +56,7 @@ def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
         else:
             not_removed.append(i)
     for e in removed:
-        l=l+list(points[labels==e])
+        l=l+point_label.filter(lambda x: x[1]==e).map(lambda x: float(x[0])).collect()
     m=np.array(m)
     if not_removed:
         m=m[not_removed]
@@ -69,13 +68,11 @@ def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
 	b=m[-2]
         c=m[-1]
         if ratio*b/a<c/b:
-            l=l+list(points[labels==p])
+            l=l+point_label.filter(lambda x: x[1]==p).map(lambda x: float(x[0])).collect()
         #return l+m1+list(w)
         return l
     except IndexError:
         return []
-
-
 
 
 
