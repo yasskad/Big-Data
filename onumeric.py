@@ -34,7 +34,7 @@ def nearest_neighbors_filter(sequence, k=20):
     return outliers, filtered
 
 
-def find_collective_outliers_KGaussians(sequence,k=2,proportion=0.5,ratio=10):
+def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
     df=sequence
     df_vector=df.map(lambda x: np.array(float(x)))
     gmm=GaussianMixture.train(df_vector,k)
@@ -47,6 +47,7 @@ def find_collective_outliers_KGaussians(sequence,k=2,proportion=0.5,ratio=10):
     m=[]
     for i in range(k):
         m.append(float(mus[i].values))
+    m1=m[:]
     removed=[]
     not_removed=[]
     for i in range(len(w)):
@@ -55,21 +56,25 @@ def find_collective_outliers_KGaussians(sequence,k=2,proportion=0.5,ratio=10):
             removed.append(i)
         else:
             not_removed.append(i)
+    for e in removed:
+        l=l+list(points[labels==e])
     m=np.array(m)
-    if removed:
-        m=m[removed]
-    n=np.where(m==max(m))
-    if n[0]:
-        n=not_removed[n[0]]
+    if not_removed:
+        m=m[not_removed]
+    n=list(m).index(max(m))
+    try:
+        p=not_removed[n]
         m=sorted(m)
         a=m[0]
-        b=m[-2]
+	b=m[-2]
         c=m[-1]
-        if b/a<ratio*c/b:
-            l=l+list(points[labels==n])
+        if ratio*b/a<c/b:
+            l=l+list(points[labels==p])
+        #return l+m1+list(w)
         return l
-    else:
+    except IndexError:
         return []
+
 
 
 
