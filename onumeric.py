@@ -33,14 +33,17 @@ def find_collective_outliers_KGuaussians(sequence,k=2,proportion=0.5,ratio=10):
     if removed:
         m=m[removed]
     n=np.where(m==max(m))
-    n=not_removed[n[0]]
-    m=sorted(m)
-    a=m[0]
-    b=m[-2]
-    c=m[-1]
-    if b/a<ratio*c/b:
-        l=l+list(points[labels==n])
-    return l
+    if n[0]:
+        n=not_removed[n[0]]
+        m=sorted(m)
+        a=m[0]
+        b=m[-2]
+        c=m[-1]
+        if b/a<ratio*c/b:
+            l=l+list(points[labels==n])
+        return l
+    else:
+        return []
 
 def nearest_neighbors_filter(sequence, k=20):
     sequence = sequence.map(lambda x: float(x))
