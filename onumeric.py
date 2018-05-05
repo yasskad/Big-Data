@@ -8,7 +8,39 @@ from pyspark.mllib.linalg import DenseMatrix
 
 
 
-
+def find_collective_outliers_KGuaussians(sequence,k=2,proportion=0.5,ratio=10):
+    df=sequence
+    df_vector=df.map(lambda x: np.array(float(x)))
+    gmm=GaussianMixture.train(df_vector,k)
+    labels=gmm.predict(df_vector).collect()
+    w=gmm.weights
+    l=[]
+    labels=np.array(labels)
+    points=np.array(df_vector.collect())
+    mus, sigmas=list(zip(*[(g.mu, g.sigma) for g in gmm.gaussians]))
+    m=[]
+    for i in range(k):
+        m.append(float(mus[i].values))
+    removed=[]
+    not_removed=[]
+    for i in range(len(w)):
+        w_i=w[i]
+        if w_i<proportion/k:
+            removed.append(i)
+        else:
+            not_removed.append(i)
+    m=np.array(m)
+    if removed:
+        m=m[removed]
+    n=np.where(m==max(m))
+    n=not_removed[n[0]]
+    m=sorted(m)
+    a=m[0]
+    b=m[-2]
+    c=m[-1]
+    if b/a<ratio*c/b:
+        l=l+list(points[labels==n])
+    return l
 
 def nearest_neighbors_filter(sequence, k=20):
     sequence = sequence.map(lambda x: float(x))
