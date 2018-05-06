@@ -46,8 +46,8 @@ def gettype(seq):
 	if sum(string) > len(seq)*0.75: return 'String' 
 	numeric = [isfloat(x) for x in seq]
 	if sum(numeric) > len(seq)*0.75: return 'Numeric'
-	#date = [isdate(x) for x in seq]
-	#if sum(date) > len(seq)*0.75: return 'Date' 
+	date = [isdate(x) for x in seq]
+	if sum(date) > len(seq)*0.75: return 'Date' 
 	return 'None'
 		
 
