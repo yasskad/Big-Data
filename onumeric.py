@@ -7,31 +7,61 @@ from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.linalg import DenseMatrix
 
 
+
 def nearest_neighbors_filter(sequence, k=20):
     column = sequence.map(lambda x: float(x)).collect()
     column = np.array(column)
-    
+
     mean_nn_dists = []
     for i in range(len(column)):
-        """
-        current = sequence.collect()[i]
-        dist = sequence.map(lambda x: (x-current)**2).sortBy(lambda x: x).collect()[1:(k+1)]
-        """
         current = column[i]
-        dist = np.sort(np.power(column - current, 2))[1:(k+1)]
+        dist = np.sort(np.absolute(column - current))[1:(k+1)]
         mean_nn_dists.append(np.sum(dist)/k)
-        
+
     mean_nn_dists = np.array(mean_nn_dists)
     m, std = np.mean(mean_nn_dists), np.std(mean_nn_dists)
-    
+
     out = np.where(mean_nn_dists > m + 5*std)[0]
     if len(out) >= 1:
-        outliers = list(mean_nn_dists[np.where(mean_nn_dists > m + 5*std)[0]])
+        outliers = list(column[out])
     else:
         outliers = []
     filtered = sequence.filter(lambda x: x not in outliers)
-    
+
     return outliers, filtered
+    
+
+"""
+def nearest_neighbors_filter(sequence, k=20):
+        column = sequence.map(lambda x: float(x))
+        column = column.cartesian(column)
+        def distance(x):
+                dist = np.abs(x[0]-x[1])
+                return (x[0], dist)
+        def topkdistance(x):
+                key = x[0]
+                values = x[1]
+                values = sorted(values)[:2*k]
+                return (key, sum(values)/(2*k))
+
+        column = column.map(distance).groupByKey()
+        column = column.mapValues(list)
+        column =  column.map(topkdistance)
+
+        mean = column.mean()
+        std = column.stdev()
+        merged = sequence.zip(column)
+
+        def is_outlier(x):
+                if x[1] > mean + 5*std:
+                        return True
+                else:
+                     	return False
+        outliers = merged.filter(is_outlier).map(lambda x: x[0]).collect()
+        filtered = sequence.filter(lambda x: x not in outliers)
+
+        return outliers, filtered
+"""
 
 
 def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
