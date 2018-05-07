@@ -50,8 +50,9 @@ def short_text_outliers(column):
     categ_sizes = []
     for category in categories_f:
         categ_sizes.append(len(np.where(column==category)[0]))
-    percent_size = np.percentile(categ_sizes, 15)
     
+    """
+    percent_size = np.percentile(categ_sizes, 15)
     # first checks if low pop categories are due to typing errors
     categories = categories_f.copy()
     all_true = True
@@ -70,6 +71,12 @@ def short_text_outliers(column):
     outliers = []
     for current in categories:
         if len(np.where(column == current)[0]) <= percent_size:
+            outliers = outliers + [current] 
+    """
+    mean_size, std_size = np.mean(categ_sizes), np.std(categ_sizes)
+    outliers = []
+    for current in categories:
+        if len(np.where(column == current)[0]) <= mean_size - 3*std_size:
             outliers = outliers + [current] 
     return outliers
 
