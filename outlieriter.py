@@ -15,6 +15,8 @@ from pyspark.sql import *
 import utils
 import onumeric
 import ostring
+import odate
+import onull
 
 def findoutliers(database):
 	spark = SparkSession.builder.appName("Python Spark SQL basic example").config("spark.some.config.option", "some-value").getOrCreate()
@@ -39,10 +41,17 @@ def findoutliers(database):
 		rand_smpl = [valuelist[i] for i in sorted(random.sample(range(len(valuelist)), 10))]
 		smpl_type = utils.gettype(rand_smpl)
 		if smpl_type == 'Numeric':
-			valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
-			valuelistnew = onumeric.find_outliers(valuelistrdd)
+			valuelistnew = [2,32,32]
+			valuelistnew = valuelistnew + onull.find_outliers(valuelistrdd)
+			#valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
+			#valuelistnew = onumeric.find_outliers(valuelistrdd)
 		elif smpl_type == 'String':
-			valuelistnew = ostring.find_outliers(valuelistrdd)
+			valuelistnew = [2,32,322]
+			#valuelistnew = ostring.find_outliers(valuelistrdd)
+		elif smpl_type == 'Date':
+			valuelistnew = [2,32,3233]
+			valuelistrdd = valuelistrdd.filter(lambda x: utils.isdate(x))
+			valuelistnew = valuelistnew + odate.find_outliers(valuelistrdd)
 		elif smpl_type == 'None':
 			valuelistnew = []
 		outlierslist.append((header, valuelistnew))
