@@ -7,6 +7,6 @@ if __name__=='__main__':
         file = open(dataset, 'r')
         new_file = open('column.txt', 'w')
         for line in file:
-                words = line.strip().split('\t')
+                words = line.split('\t')
                 new_file.write(words[column]+'\n')
         new_file.close()
