@@ -183,8 +183,9 @@ def find_outliers_Gaussian(sequence,distance_factor=6):
 
     l=np.array(df_vector.collect())
     d=abs(l-m)
-    return [m] + [s] + list(set(list(l[d>=distance_factor*s])))
-
+    outliers = list(set(list(l[d>=distance_factor*s])))
+    filtered = sequence.filter(lambda x: x not in outliers)
+    return outliers, filtered
 
 
 
@@ -193,11 +194,12 @@ def find_outliers(sequence, k=2,proportion=0.95,distance_factor=6):
     #l1=find_outliers_KMeans(sequence,k,proportion)
     #l2=find_outliers_KGuaussians(sequence,k,proportion)
     #l3=find_outliers_Gaussian(sequence,distance_factor)
-    nn_outliers, filtered = nearest_neighbors_filter(sequence, k=20)
-    #collective_outliers = find_collective_outliers_KGaussians(filtered,k=5,proportion=0.5,ratio=10)
     
-    #outliers = nn_outliers + collective_outliers
-    return nn_outliers
+    gaussian_outliers, filtered_1 =find_outliers_Gaussian(sequence,distance_factor)
+    nn_outliers, filtered_2 = nearest_neighbors_filter(filtered_1, k=20)
+    collective_outliers = find_collective_outliers_KGaussians(filtered_2,k=5,proportion=0.1,ratio=10)
+    
+    return gaussian_outliers + nn_outliers + collective_outliers
 
         
 if __name__=='__main__':
