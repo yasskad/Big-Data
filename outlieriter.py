@@ -41,15 +41,14 @@ def findoutliers(database):
 		rand_smpl = [valuelist[i] for i in sorted(random.sample(range(len(valuelist)), 10))]
 		smpl_type = utils.gettype(rand_smpl)
 		if smpl_type == 'Numeric':
-			valuelistnew = [2,32,32]
-			valuelistnew = valuelistnew + onull.find_outliers(valuelistrdd)
-			#valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
-			#valuelistnew = onumeric.find_outliers(valuelistrdd)
+			valuelistnew = onull.find_outliers(valuelistrdd)
+			valuelistrdd = valuelistrdd.filter(lambda x: utils.isfloat(x))
+			valuelistnew = valuelistnew + onumeric.find_outliers(valuelistrdd)
 		elif smpl_type == 'String':
-			valuelistnew = [2,32,322]
-			#valuelistnew = ostring.find_outliers(valuelistrdd)
+			valuelistnew = []
+			valuelistnew = ostring.find_outliers(valuelistrdd)
 		elif smpl_type == 'Date':
-			valuelistnew = [2,32,3233]
+			valuelistnew = onull.find_outliers(valuelistrdd)
 			valuelistrdd = valuelistrdd.filter(lambda x: utils.isdate(x))
 			valuelistnew = valuelistnew + odate.find_outliers(valuelistrdd)
 		elif smpl_type == 'None':

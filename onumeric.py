@@ -95,7 +95,7 @@ def find_collective_outliers_KGaussians(sequence,k=5,proportion=0.1,ratio=10):
         p=not_removed[n]
         m=sorted(m)
         a=m[0]
-	b=m[-2]
+        b=m[-2]
         c=m[-1]
         if ratio*b/a<c/b:
             l=l+point_label.filter(lambda x: x[1]==p).map(lambda x: float(x[0])).collect()
