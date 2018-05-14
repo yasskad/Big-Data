@@ -1,6 +1,5 @@
 import os
 import numpy as np
-#from sklearn.feature_extraction.text import TfidfVectorizer
 from pyspark.mllib.feature import HashingTF, IDF
 
 
@@ -19,15 +18,15 @@ def find_outliers(column):
     #LONG: tf-idf (fit gaussian on k-nearest or say we need to find some nb of outliers)
     else:
         outliers = long_text_outliers(column)
-    
+
     return outliers
-    
-    
+
+
 def edit_distance(str1, str2):
     len_1, len_2, dist =len(str1)+1, len(str2)+1, {}
-    for i in range(len_1): 
+    for i in range(len_1):
         dist[i,0]=i
-    for j in range(len_2): 
+    for j in range(len_2):
         dist[0,j]=j
     for i in range(1, len_1):
         for j in range(1, len_2):
@@ -43,16 +42,13 @@ def is_matching(categories, category):
             return True, current
     return False, ""
 
-
-
 def short_text_outliers(column):
     categories_f = np.unique(column).copy()
     categ_sizes = []
     for category in categories_f:
         categ_sizes.append(len(np.where(column==category)[0]))
-    
-    """
     percent_size = np.percentile(categ_sizes, 15)
+
     # first checks if low pop categories are due to typing errors
     categories = categories_f.copy()
     all_true = True
@@ -71,21 +67,13 @@ def short_text_outliers(column):
     outliers = []
     for current in categories:
         if len(np.where(column == current)[0]) <= percent_size:
-            outliers = outliers + [current] 
-    """
-    mean_size, std_size = np.mean(categ_sizes), np.std(categ_sizes)
-    outliers = []
-    for current in categories:
-        if len(np.where(column == current)[0]) <= mean_size - 3*std_size:
-            outliers = outliers + [current] 
+            outliers = outliers + [current]
     return outliers
 
 
 
 def long_text_outliers(column):
     k = 10
-    #vectorizer = TfidfVectorizer(max_features=250, use_idf=True)
-    #data_mat = vectorizer.fit_transform(column).toarray()
     seq = column.map(lambda line: line.split(" "))
 
     hashingTF = HashingTF()
@@ -93,17 +81,17 @@ def long_text_outliers(column):
     tf.cache()
     idf = IDF(minDocFreq=2).fit(tf)
     tfidf = idf.transform(tf)
-    
+
     data_mat = []
     for i in range(len(tfidf.collect())):
         data_mat = np.hstack((data_mat, tfidf.collect()[i].values))
-        
+
 
     avg_k_dist = []
     for i in range(len(data_mat)):
         dist = np.linalg.norm(data_mat - data_mat[i], 2, axis=1)
         avg_k_dist.append(1/k*np.sum(np.sort(dist)[1:(k+1)]))
-    
+
     avg_k_dist = np.array(avg_k_dist)
     mean, std = np.mean(avg_k_dist), np.std(avg_k_dist)
     outliers = np.where(avg_k_dist > mean + 3*std)[0]

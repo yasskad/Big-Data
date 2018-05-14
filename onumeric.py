@@ -196,8 +196,8 @@ def find_outliers(sequence, k=2,proportion=0.95,distance_factor=6):
     #l3=find_outliers_Gaussian(sequence,distance_factor)
     
     gaussian_outliers, filtered_1 =find_outliers_Gaussian(sequence,distance_factor)
-    nn_outliers, filtered_2 = nearest_neighbors_filter(filtered_1, k=20)
-    collective_outliers = find_collective_outliers_KGaussians(filtered_2,k=5,proportion=0.1,ratio=10)
+    #nn_outliers, filtered_2 = nearest_neighbors_filter(filtered_1, k=20)
+    collective_outliers = find_collective_outliers_KGaussians(filtered_1,k=5,proportion=0.1,ratio=10)
     
     return gaussian_outliers + nn_outliers + collective_outliers
 
